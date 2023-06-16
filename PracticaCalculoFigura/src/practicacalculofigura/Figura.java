@@ -10,26 +10,15 @@ package practicacalculofigura;
  */
 public class Figura {
 
-   private double lado;
-
-    public Figura(double lado) {
-        this.lado = lado;
+   public double area;
+   public double perimetro;
+    
+    public void calcularArea() {
+        // Este método se implementará en cada clase hija
     }
-
-    public double getLado() {
-        return lado; 
-    }
-
-    public void setLado(double lado) {
-        this.lado = lado;
-    }
-
-    public double calcularArea() {
-        return lado * lado;
-    }
-
-    public double calcularPerimetro() {
-        return 4 * lado;
+    
+    public void calcularPerimetro() {
+        // Este método se implementará en cada clase hija
     }
 
     
