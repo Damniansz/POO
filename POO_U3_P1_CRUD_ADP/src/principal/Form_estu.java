@@ -5,21 +5,26 @@
 package principal;
 
 import com.mysql.jdbc.Connection;
+import com.mysql.jdbc.PreparedStatement;
+import com.mysql.jdbc.Statement;
 import control.Conexion;
+import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
+import java.sql.ResultSet;
 
 /**
  *
  * @author ESPE
  */
 public class Form_estu extends javax.swing.JInternalFrame {
-    Conexion cc = new Conexion();
-    Connection con = cc.conexion();
-
+Conexion cc=new Conexion();
+Connection con=cc.conexion();
   /**
    * Creates new form Form_estu
    */
   public Form_estu() {
     initComponents();
+    mostrarDatos();
   }
 
   /**
@@ -43,20 +48,19 @@ public class Form_estu extends javax.swing.JInternalFrame {
         btnProm = new javax.swing.JTextField();
         btnGuardar = new javax.swing.JButton();
         jButton2 = new javax.swing.JButton();
-        jButton3 = new javax.swing.JButton();
         jPanel3 = new javax.swing.JPanel();
         jScrollPane2 = new javax.swing.JScrollPane();
-        jTable2 = new javax.swing.JTable();
+        TablaEstudiante = new javax.swing.JTable();
         btnAsig = new javax.swing.JComboBox<>();
         btnEstado = new javax.swing.JComboBox<>();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
-        jPanel1.setBackground(new java.awt.Color(255, 255, 153));
+        jPanel1.setBackground(new java.awt.Color(153, 255, 255));
 
-        jLabel1.setText("SISTEMA DE ESTUDIANTE");
+        jLabel1.setText("Estudiantes");
 
-        jLabel3.setText("ASIGNATURA");
+        jLabel3.setText("ASIGNATURAS");
 
         jLabel4.setText("NOMBRE");
 
@@ -73,14 +77,22 @@ public class Form_estu extends javax.swing.JInternalFrame {
         });
 
         btnGuardar.setText("GUARDAR");
+        btnGuardar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnGuardarActionPerformed(evt);
+            }
+        });
 
         jButton2.setText("ACTUALIZAR");
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
 
-        jButton3.setText("ELIMINAR");
+        jPanel3.setBackground(new java.awt.Color(153, 255, 204));
 
-        jPanel3.setBackground(new java.awt.Color(204, 255, 51));
-
-        jTable2.setModel(new javax.swing.table.DefaultTableModel(
+        TablaEstudiante.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null, null},
                 {null, null, null, null},
@@ -91,7 +103,7 @@ public class Form_estu extends javax.swing.JInternalFrame {
                 "Title 1", "Title 2", "Title 3", "Title 4"
             }
         ));
-        jScrollPane2.setViewportView(jTable2);
+        jScrollPane2.setViewportView(TablaEstudiante);
 
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
@@ -131,41 +143,42 @@ public class Form_estu extends javax.swing.JInternalFrame {
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGap(25, 25, 25)
-                        .addComponent(jLabel1))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGap(89, 89, 89)
-                        .addComponent(btnGuardar)
-                        .addGap(18, 18, 18)
-                        .addComponent(jButton2)
-                        .addGap(21, 21, 21)
-                        .addComponent(jButton3))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGap(15, 15, 15)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel1Layout.createSequentialGroup()
-                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jLabel3)
-                                    .addComponent(jLabel4))
-                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addGroup(jPanel1Layout.createSequentialGroup()
-                                        .addGap(22, 22, 22)
-                                        .addComponent(btnNombre, javax.swing.GroupLayout.PREFERRED_SIZE, 235, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(btnAsig, javax.swing.GroupLayout.PREFERRED_SIZE, 85, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addGap(150, 150, 150))))
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jLabel5)
-                                    .addComponent(jLabel6)
-                                    .addComponent(jLabel7))
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                    .addComponent(btnApellido, javax.swing.GroupLayout.DEFAULT_SIZE, 235, Short.MAX_VALUE)
-                                    .addComponent(btnProm)
-                                    .addComponent(btnEstado, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))))
-                .addGap(45, 45, 45)
+                                .addGap(25, 25, 25)
+                                .addComponent(jLabel1))
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addGap(15, 15, 15)
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel1Layout.createSequentialGroup()
+                                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                            .addComponent(jLabel3)
+                                            .addComponent(jLabel4))
+                                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                                .addGap(22, 22, 22)
+                                                .addComponent(btnNombre, javax.swing.GroupLayout.PREFERRED_SIZE, 235, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                                .addComponent(btnAsig, javax.swing.GroupLayout.PREFERRED_SIZE, 85, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                .addGap(150, 150, 150))))
+                                    .addGroup(jPanel1Layout.createSequentialGroup()
+                                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                            .addComponent(jLabel5)
+                                            .addComponent(jLabel6)
+                                            .addComponent(jLabel7))
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                            .addComponent(btnApellido, javax.swing.GroupLayout.DEFAULT_SIZE, 235, Short.MAX_VALUE)
+                                            .addComponent(btnProm)
+                                            .addComponent(btnEstado, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))))
+                        .addGap(106, 106, 106))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(btnGuardar)
+                        .addGap(26, 26, 26)
+                        .addComponent(jButton2)
+                        .addGap(119, 119, 119)))
                 .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
@@ -196,9 +209,8 @@ public class Form_estu extends javax.swing.JInternalFrame {
                 .addGap(30, 30, 30)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btnGuardar)
-                    .addComponent(jButton2)
-                    .addComponent(jButton3))
-                .addContainerGap(56, Short.MAX_VALUE))
+                    .addComponent(jButton2))
+                .addContainerGap(85, Short.MAX_VALUE))
             .addComponent(jPanel3, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
 
@@ -221,7 +233,48 @@ public class Form_estu extends javax.swing.JInternalFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-
+    public void mostrarDatos(){
+        String titulos[]={"Códigos","Apellidos","Nombres","Asignatura","Promedio","Estado"};
+        String registro[]=new String [6];
+        DefaultTableModel modelo=new DefaultTableModel(null, titulos);
+        String SQL = "SELECT * FROM `estudiantes`";
+        try{
+            Statement st=(Statement) con.createStatement();
+            ResultSet rs=st.executeQuery(SQL);
+            while(rs.next()){
+            registro [0]=rs.getString("estu_codigo");
+            registro [1]=rs.getString("estu_apellido");
+            registro [2]=rs.getString("estu_nombre");
+            registro [3]=rs.getString("estu_asignatura");
+            registro [4]=rs.getString("estu_promedio");
+            registro [5]=rs.getString("estu_estado");
+            modelo.addRow(registro);
+        }
+            TablaEstudiante.setModel(modelo);
+        }catch(Exception e){
+            JOptionPane.showMessageDialog(null, "Error al mostrar los datos: "+e);
+        }
+    }
+    public void limpiarDatos(){
+        btnApellido.setText("");
+        btnNombre.setText("");
+        btnAsig.setSelectedItem(null);
+        btnProm.setText("");
+        btnEstado.setSelectedItem(null);
+    }
+    
+    
+    
+    public void insertarDatos(){
+        
+    }
+    public void eliminarDatos(){
+        
+    }
+    public void actualizarDatos(){
+        
+    }
+    
     private void btnAsigActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAsigActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_btnAsigActionPerformed
@@ -233,6 +286,27 @@ public class Form_estu extends javax.swing.JInternalFrame {
     private void btnNombreActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNombreActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_btnNombreActionPerformed
+
+    private void btnGuardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGuardarActionPerformed
+        String SQL = "INSERT INTO estudiantes(estu_asignatura, estu_nombre, estu_apellido, estu_promedio, estu_estado)values(?,?,?,?,?)";
+        try {
+            int select = btnAsig.getSelectedIndex();
+            int select2 = btnEstado.getSelectedIndex();
+            PreparedStatement pst = (PreparedStatement) con.prepareStatement(SQL);
+            pst.setString(1,btnAsig.getItemAt(select));
+            pst.setString(2,btnNombre.getText());
+            pst.setString(3,btnNombre.getText());
+            pst.setString(4,btnProm.getText());
+            pst.setString(5,btnEstado.getItemAt(select));
+            pst.execute();
+        } catch(Exception e){
+            System.out.println(e);
+        }        // TODO add your handling code here:
+    }//GEN-LAST:event_btnGuardarActionPerformed
+
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        mostrarDatos();
+    }//GEN-LAST:event_jButton2ActionPerformed
 
   /**
    * @param args the command line arguments
@@ -270,6 +344,7 @@ public class Form_estu extends javax.swing.JInternalFrame {
   }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JTable TablaEstudiante;
     private javax.swing.JTextField btnApellido;
     private javax.swing.JComboBox<String> btnAsig;
     private javax.swing.JComboBox<String> btnEstado;
@@ -277,7 +352,6 @@ public class Form_estu extends javax.swing.JInternalFrame {
     private javax.swing.JTextField btnNombre;
     private javax.swing.JTextField btnProm;
     private javax.swing.JButton jButton2;
-    private javax.swing.JButton jButton3;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
@@ -287,6 +361,5 @@ public class Form_estu extends javax.swing.JInternalFrame {
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JScrollPane jScrollPane2;
-    private javax.swing.JTable jTable2;
     // End of variables declaration//GEN-END:variables
 }
