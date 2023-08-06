@@ -12,6 +12,7 @@ import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 import java.sql.ResultSet;
 
+
 /**
  *
  * @author ESPE
@@ -26,6 +27,17 @@ public class Form_profe extends javax.swing.JInternalFrame{
     public Form_profe() {
         initComponents();
         mostrarDatos();
+        TablaProfesor.removeColumn(TablaProfesor.getColumnModel().getColumn(0));
+        
+        TablaProfesor.addMouseListener(new java.awt.event.MouseAdapter() {
+        @Override
+        public void mouseClicked(java.awt.event.MouseEvent evt) {
+            int fila = TablaProfesor.rowAtPoint(evt.getPoint());
+            if (fila >= 0) {
+                TablaProfesor.setRowSelectionInterval(fila, fila);
+            }
+        }
+    });
     }
 
     /**
@@ -54,10 +66,12 @@ public class Form_profe extends javax.swing.JInternalFrame{
         btnGuardar1 = new javax.swing.JButton();
         jLabel7 = new javax.swing.JLabel();
         btnEmail = new javax.swing.JTextField();
-        jButton2 = new javax.swing.JButton();
         jButton3 = new javax.swing.JButton();
+        btnEliminar = new javax.swing.JButton();
+        btnEditar = new javax.swing.JButton();
+        btnRefrescar = new javax.swing.JButton();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
         jInternalFrame1.setVisible(true);
 
@@ -133,17 +147,31 @@ public class Form_profe extends javax.swing.JInternalFrame{
             }
         });
 
-        jButton2.setText("ACTUALIZAR");
-        jButton2.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton2ActionPerformed(evt);
-            }
-        });
-
         jButton3.setText("ACTUALIZAR");
         jButton3.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton3ActionPerformed(evt);
+            }
+        });
+
+        btnEliminar.setText("ELIMINAR");
+        btnEliminar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnEliminarActionPerformed(evt);
+            }
+        });
+
+        btnEditar.setText("EDITAR");
+        btnEditar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnEditarActionPerformed(evt);
+            }
+        });
+
+        btnRefrescar.setText("REFRESCAR");
+        btnRefrescar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnRefrescarActionPerformed(evt);
             }
         });
 
@@ -153,9 +181,6 @@ public class Form_profe extends javax.swing.JInternalFrame{
             jInternalFrame1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jInternalFrame1Layout.createSequentialGroup()
                 .addGroup(jInternalFrame1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jInternalFrame1Layout.createSequentialGroup()
-                        .addGap(48, 48, 48)
-                        .addComponent(jLabel1))
                     .addGroup(jInternalFrame1Layout.createSequentialGroup()
                         .addGap(40, 40, 40)
                         .addGroup(jInternalFrame1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -172,25 +197,34 @@ public class Form_profe extends javax.swing.JInternalFrame{
                             .addComponent(btnNombre)
                             .addComponent(btnApellido)
                             .addComponent(btnCelular, javax.swing.GroupLayout.DEFAULT_SIZE, 195, Short.MAX_VALUE)
-                            .addComponent(btnEmail, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 195, Short.MAX_VALUE)))
+                            .addComponent(btnEmail, javax.swing.GroupLayout.Alignment.TRAILING)))
                     .addGroup(jInternalFrame1Layout.createSequentialGroup()
-                        .addGap(60, 60, 60)
-                        .addComponent(btnGuardar1)
-                        .addGap(31, 31, 31)
-                        .addComponent(jButton3)))
-                .addGap(18, 18, 18)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(102, Short.MAX_VALUE))
-            .addGroup(jInternalFrame1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addGroup(jInternalFrame1Layout.createSequentialGroup()
-                    .addGap(396, 396, 396)
-                    .addComponent(jButton2)
-                    .addContainerGap(397, Short.MAX_VALUE)))
+                        .addGroup(jInternalFrame1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(jInternalFrame1Layout.createSequentialGroup()
+                                .addGap(48, 48, 48)
+                                .addComponent(jLabel1))
+                            .addGroup(jInternalFrame1Layout.createSequentialGroup()
+                                .addComponent(btnGuardar1)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 99, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(btnEliminar)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(btnEditar)))
+                .addGroup(jInternalFrame1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jInternalFrame1Layout.createSequentialGroup()
+                        .addGap(17, 17, 17)
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 622, Short.MAX_VALUE)
+                        .addContainerGap())
+                    .addGroup(jInternalFrame1Layout.createSequentialGroup()
+                        .addGap(18, 18, 18)
+                        .addComponent(btnRefrescar)
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
         );
         jInternalFrame1Layout.setVerticalGroup(
             jInternalFrame1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jInternalFrame1Layout.createSequentialGroup()
-                .addGap(25, 25, 25)
+                .addGap(36, 36, 36)
                 .addComponent(jLabel1)
                 .addGap(56, 56, 56)
                 .addGroup(jInternalFrame1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
@@ -219,17 +253,14 @@ public class Form_profe extends javax.swing.JInternalFrame{
                 .addGap(30, 30, 30)
                 .addGroup(jInternalFrame1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btnGuardar1)
-                    .addComponent(jButton3))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jInternalFrame1Layout.createSequentialGroup()
-                .addContainerGap(11, Short.MAX_VALUE)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(20, 20, 20))
-            .addGroup(jInternalFrame1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addGroup(jInternalFrame1Layout.createSequentialGroup()
-                    .addGap(217, 217, 217)
-                    .addComponent(jButton2)
-                    .addContainerGap(218, Short.MAX_VALUE)))
+                    .addComponent(jButton3)
+                    .addComponent(btnEliminar)
+                    .addComponent(btnEditar)
+                    .addComponent(btnRefrescar))
+                .addContainerGap(37, Short.MAX_VALUE))
+            .addGroup(jInternalFrame1Layout.createSequentialGroup()
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 276, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -237,43 +268,54 @@ public class Form_profe extends javax.swing.JInternalFrame{
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jInternalFrame1)
-                .addContainerGap())
+                .addComponent(jInternalFrame1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jInternalFrame1)
-                .addContainerGap())
+            .addComponent(jInternalFrame1)
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-    
+    private String codigoProfesorSeleccionado;
     public void mostrarDatos(){
-        String titulos []= {"nombre","apellido","celular","mail","titulo","estado"};
-        String registro [] = new String [7];
-        DefaultTableModel modelo=new DefaultTableModel(null, titulos);
-        String SQL = "SELECT * FROM `profesor`";
-        try{
-            Statement st=(Statement) con.createStatement();
-            ResultSet rs=st.executeQuery(SQL);
-            while(rs.next()){
-            registro [0]=rs.getString("profe_nombre");
-            registro [1]=rs.getString("profe_apellido");
-            registro [2]=rs.getString("profe_celular");
-            registro [3]=rs.getString("profe_mail");
-            registro [4]=rs.getString("profe_titulo");
-            registro [5]=rs.getString("profe_estado");
-            registro [6]=rs.getString("profe_codigo");
+     String titulos[] = {"Código", "Nombre", "Apellido", "Celular", "Email", "Título", "Estado"};
+    DefaultTableModel modelo = new DefaultTableModel(null, titulos);
+    String SQL = "SELECT * FROM profesor";
+    try {
+        Statement st = (Statement) con.createStatement();
+        ResultSet rs = st.executeQuery(SQL);
+        while (rs.next()) {
+            Object[] registro = new Object[7];
+            registro[0] = rs.getString("profe_codigo");
+            registro[1] = rs.getString("profe_nombre");
+            registro[2] = rs.getString("profe_apellido");
+            registro[3] = rs.getString("profe_celular");
+            registro[4] = rs.getString("profe_mail");
+            registro[5] = rs.getString("profe_titulo");
+            registro[6] = rs.getString("profe_estado");
             modelo.addRow(registro);
         }
-            TablaProfesor.setModel(modelo);
-        }catch(Exception e){
-            JOptionPane.showMessageDialog(null, "Error al mostrar los datos: "+e);
+        TablaProfesor.setModel(modelo);
+        // Ocultar la columna profe_codigo (índice 0)
+        TablaProfesor.getColumnModel().getColumn(0).setWidth(0);
+        TablaProfesor.getColumnModel().getColumn(0).setMinWidth(0);
+        TablaProfesor.getColumnModel().getColumn(0).setMaxWidth(0);
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(null, "Error al mostrar los datos: " + e);
+    }
+    
+        TablaProfesor.addMouseListener(new java.awt.event.MouseAdapter() {
+        @Override
+        public void mouseClicked(java.awt.event.MouseEvent evt) {
+            int fila = TablaProfesor.rowAtPoint(evt.getPoint());
+            if (fila >= 0) {
+                TablaProfesor.setRowSelectionInterval(fila, fila);
+                codigoProfesorSeleccionado = TablaProfesor.getValueAt(fila, 0).toString();
+            }
         }
+    });
     }
     
     public void limpiarDatos(){
@@ -283,6 +325,20 @@ public class Form_profe extends javax.swing.JInternalFrame{
         btnEmail.setText("");
         btnTitulo.setSelectedItem(null);
         btnEstado.setSelectedItem(null);
+    }
+    
+    public void eliminarDatos(int filaSeleccionada){
+     String codigoProfesor = TablaProfesor.getValueAt(filaSeleccionada, 0).toString();
+    String SQL = "DELETE FROM profesor WHERE profe_codigo = ?";
+    try {
+        PreparedStatement pst = (PreparedStatement) con.prepareStatement(SQL);
+        pst.setString(1, codigoProfesor);
+        pst.executeUpdate();
+        JOptionPane.showMessageDialog(null, "Registro eliminado correctamente.");
+        mostrarDatos(); // Actualizar la tabla después de eliminar el registro
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(null, "Error al eliminar el registro: " + e);
+    }
     }
         
     private void btnNombreActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNombreActionPerformed
@@ -315,10 +371,10 @@ public class Form_profe extends javax.swing.JInternalFrame{
             pst.setString(2,btnApellido.getText());
             pst.setString(3,btnCelular.getText());
             pst.setString(4,btnEmail.getText());
-            pst.setString(5,btnTitulo.getItemAt(select));
-            pst.setString(6,btnEstado.getItemAt(select));
+            pst.setString(5,btnTitulo.getSelectedItem().toString());
+            pst.setString(6,btnEstado.getSelectedItem().toString());
             pst.execute();
-            mostrarDatos();
+            
         } catch(Exception e){
             System.out.println(e);
         } 
@@ -329,13 +385,99 @@ public class Form_profe extends javax.swing.JInternalFrame{
         // TODO add your handling code here:
     }//GEN-LAST:event_btnEmailActionPerformed
 
-    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-        mostrarDatos();
-    }//GEN-LAST:event_jButton2ActionPerformed
-
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
         mostrarDatos();
     }//GEN-LAST:event_jButton3ActionPerformed
+
+    private void btnEliminarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEliminarActionPerformed
+     int filaSeleccionada = TablaProfesor.getSelectedRow();
+    if (filaSeleccionada == -1) {
+        JOptionPane.showMessageDialog(null, "Seleccione un registro para eliminar.");
+        return;
+    }
+    eliminarDatos(filaSeleccionada);
+    mostrarDatos(); // Actualizar la tabla después de eliminar el registro
+    }//GEN-LAST:event_btnEliminarActionPerformed
+
+    private void btnEditarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEditarActionPerformed
+
+        
+        // Verificar si se ha seleccionado un estudiante en la tabla
+    if (codigoProfesorSeleccionado == null) {
+        JOptionPane.showMessageDialog(null, "Seleccione un estudiante para editar.");
+        return;
+    }
+
+    String SQL = "SELECT * FROM profesor WHERE profe_codigo = ?";
+    try {
+        PreparedStatement pst = (PreparedStatement) con.prepareStatement(SQL);
+        pst.setString(1, codigoProfesorSeleccionado);
+        ResultSet rs = pst.executeQuery();
+
+        if (rs.next()) {
+            // Cargar los datos del estudiante seleccionado en los campos de texto
+            btnNombre.setText(rs.getString("profe_nombre"));
+            btnApellido.setText(rs.getString("profe_apellido"));
+            btnCelular.setText(rs.getString("profe_celular"));
+            btnEmail.setText(rs.getString("profe_mail"));
+            btnTitulo.setSelectedItem(rs.getString("profe_estado"));
+            btnEstado.setSelectedItem(rs.getString("profe_estado"));
+        }
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(null, "Error al cargar los datos del estudiante: " + e);
+    }
+        
+    }//GEN-LAST:event_btnEditarActionPerformed
+
+    private void btnRefrescarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRefrescarActionPerformed
+        
+        int filaSeleccionada = TablaProfesor.getSelectedRow();
+         btnRefrescar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnRefrescarActionPerformed(evt);
+            }
+        });
+        String codigoProfesor = TablaProfesor.getValueAt(filaSeleccionada, 0).toString();
+        String nuevoNombre = btnNombre.getText();   
+        String nuevoApellido = btnApellido.getText();
+        String nuevoCelular = btnCelular.getText();
+        String nuevoEmail = btnEmail.getText();
+        String nuevoTitulo= btnTitulo.getSelectedItem().toString();
+        String nuevoEstado = btnEstado.getSelectedItem().toString();
+        
+
+
+        String SQL = "UPDATE profesor SET profe_nombre=?, profe_apellido=?, profe_celular=?, profe_mail=?, profe_titulo=?, profe_estado=? WHERE profe_codigo=?";
+        try {
+            PreparedStatement pst = (PreparedStatement) con.prepareStatement(SQL);
+            
+            pst.setString(1, nuevoNombre);
+            pst.setString(2, nuevoApellido);
+            pst.setString(3, nuevoCelular);
+            pst.setString(4, nuevoEmail);
+            pst.setString(5, nuevoTitulo);
+            pst.setString(6, nuevoEstado);
+            pst.setString(7, codigoProfesor);
+            
+
+            pst.executeUpdate();
+            JOptionPane.showMessageDialog(null, "Registro actualizado correctamente.");
+            mostrarDatos(); // Actualizar la tabla después de la actualización
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, "Error al actualizar el registro: " + e);
+        }
+    }                                      
+
+    private void btneliminarActionPerformed(java.awt.event.ActionEvent evt) {                                            
+        // TODO add your handling code here:
+          int filaSeleccionada = TablaProfesor.getSelectedRow();
+            if (filaSeleccionada == -1) {
+            JOptionPane.showMessageDialog(null, "Seleccione un registro para eliminar.");
+            return;
+    }
+    eliminarDatos(filaSeleccionada);
+    mostrarDatos();
+    }//GEN-LAST:event_btnRefrescarActionPerformed
 
     /**
      * @param args the command line arguments
@@ -376,12 +518,14 @@ public class Form_profe extends javax.swing.JInternalFrame{
     private javax.swing.JTable TablaProfesor;
     private javax.swing.JTextField btnApellido;
     private javax.swing.JTextField btnCelular;
+    private javax.swing.JButton btnEditar;
+    private javax.swing.JButton btnEliminar;
     private javax.swing.JTextField btnEmail;
     private javax.swing.JComboBox<String> btnEstado;
     private javax.swing.JButton btnGuardar1;
     private javax.swing.JTextField btnNombre;
+    private javax.swing.JButton btnRefrescar;
     private javax.swing.JComboBox<String> btnTitulo;
-    private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
     private javax.swing.JInternalFrame jInternalFrame1;
     private javax.swing.JLabel jLabel1;
