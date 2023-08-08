@@ -33,6 +33,8 @@ public class Menu extends javax.swing.JFrame {
         editMenu = new javax.swing.JMenu();
         profesor = new javax.swing.JMenu();
         horario = new javax.swing.JMenu();
+        login = new javax.swing.JMenu();
+        registro = new javax.swing.JMenu();
         helpMenu = new javax.swing.JMenu();
         contentMenuItem = new javax.swing.JMenuItem();
         aboutMenuItem = new javax.swing.JMenuItem();
@@ -92,6 +94,32 @@ public class Menu extends javax.swing.JFrame {
         });
         menuBar.add(horario);
 
+        login.setMnemonic('e');
+        login.setText("Login");
+        login.addMenuListener(new javax.swing.event.MenuListener() {
+            public void menuCanceled(javax.swing.event.MenuEvent evt) {
+            }
+            public void menuDeselected(javax.swing.event.MenuEvent evt) {
+            }
+            public void menuSelected(javax.swing.event.MenuEvent evt) {
+                loginMenuSelected(evt);
+            }
+        });
+        menuBar.add(login);
+
+        registro.setMnemonic('e');
+        registro.setText("Registro");
+        registro.addMenuListener(new javax.swing.event.MenuListener() {
+            public void menuCanceled(javax.swing.event.MenuEvent evt) {
+            }
+            public void menuDeselected(javax.swing.event.MenuEvent evt) {
+            }
+            public void menuSelected(javax.swing.event.MenuEvent evt) {
+                registroMenuSelected(evt);
+            }
+        });
+        menuBar.add(registro);
+
         helpMenu.setMnemonic('h');
         helpMenu.setText("Help");
 
@@ -111,11 +139,11 @@ public class Menu extends javax.swing.JFrame {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(Escritorio, javax.swing.GroupLayout.DEFAULT_SIZE, 400, Short.MAX_VALUE)
+            .addComponent(Escritorio, javax.swing.GroupLayout.DEFAULT_SIZE, 436, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(Escritorio, javax.swing.GroupLayout.DEFAULT_SIZE, 281, Short.MAX_VALUE)
+            .addComponent(Escritorio, javax.swing.GroupLayout.DEFAULT_SIZE, 282, Short.MAX_VALUE)
         );
 
         pack();
@@ -146,6 +174,20 @@ public class Menu extends javax.swing.JFrame {
         form1.toFront();
         form1.setVisible(true);
     }//GEN-LAST:event_horarioMenuSelected
+
+    private void loginMenuSelected(javax.swing.event.MenuEvent evt) {//GEN-FIRST:event_loginMenuSelected
+        Form_login form1 = new Form_login();
+        Escritorio.add(form1);
+        form1.toFront();
+        form1.setVisible(true);
+    }//GEN-LAST:event_loginMenuSelected
+
+    private void registroMenuSelected(javax.swing.event.MenuEvent evt) {//GEN-FIRST:event_registroMenuSelected
+        Form_registro form1 = new Form_registro();
+        Escritorio.add(form1);
+        form1.toFront();
+        form1.setVisible(true);
+    }//GEN-LAST:event_registroMenuSelected
 
  
     
@@ -193,8 +235,10 @@ public class Menu extends javax.swing.JFrame {
     private javax.swing.JMenu fileMenu;
     private javax.swing.JMenu helpMenu;
     private javax.swing.JMenu horario;
+    private javax.swing.JMenu login;
     private javax.swing.JMenuBar menuBar;
     private javax.swing.JMenu profesor;
+    private javax.swing.JMenu registro;
     // End of variables declaration//GEN-END:variables
 
 }
