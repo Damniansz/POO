@@ -1,0 +1,7 @@
+com\mycompany\ejemplostrategy\Estrategia.class
+com\mycompany\ejemplostrategy\AnalisisAvanzado.class
+com\mycompany\ejemplostrategy\AntivirusSimple.class
+com\mycompany\ejemplostrategy\AnalisisSimple.class
+com\mycompany\ejemplostrategy\AntivirusAvanzado.class
+com\mycompany\ejemplostrategy\Contexto.class
+com\mycompany\ejemplostrategy\EjemploStrategy.class
