@@ -1,4 +1,3 @@
-
 package vista;
 
 import Control.Conexion;
@@ -8,16 +7,15 @@ import com.itextpdf.text.Paragraph;
 import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
-import com.mysql.jdbc.Connection;
-import com.mysql.jdbc.PreparedStatement;
-import com.mysql.jdbc.Statement;
+import com.mongodb.BasicDBObject;
+import com.mongodb.DBCollection;
+import com.mongodb.DBCursor;
+import com.mongodb.DBObject;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.sql.ResultSet;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -32,22 +30,22 @@ import javax.swing.ListSelectionModel;
 import javax.swing.table.DefaultTableModel;
 
 
-
 public class Horario extends JFrame {
     //Se instancia objetos para conectarse
-    Conexion cc=new Conexion();
-    Connection con=cc.conexion();
+   private DBCollection horario;
+
     
     private JTextField codigoField, cedulaField, apellidoField, nombreField, telefonoField, direccionField;
         private JComboBox<String> materiaComboBox,laboComboBox,instrumentosComboBox;
         private JRadioButton activoRadioButton, inactivoRadioButton;
         private JButton guardarButton,editarButton,eliminarButton;
-        private JButton generarPDFButton;
         private DefaultTableModel tableModel;
          private JTable table;  
         private int selectedIndex = -1;
 
         public Horario() {
+         Conexion cc = new Conexion();
+         horario = cc.conexionHorario();;
         
         setSize(800, 800);    
         setTitle("Horario");
@@ -150,20 +148,6 @@ public class Horario extends JFrame {
             }
         });
         add(eliminarButton);
-        
-        generarPDFButton = new JButton("Generar PDF");
-        generarPDFButton.setBounds(300, 490, 200, 30);
-        generarPDFButton.addActionListener(new ActionListener() {
-    @Override
-            public void actionPerformed(ActionEvent e) {
-        try {
-            generatePDF();
-        } catch (FileNotFoundException ex) {
-            Logger.getLogger(Horario.class.getName()).log(Level.SEVERE, null, ex);
-        }
-            }
-        });
-        add(generarPDFButton);
 
          String[] columnNames = {"Código", "Materia", "Laboratorio", "Profesor", "Estado", "Instrumentos"};
         tableModel = new DefaultTableModel(columnNames, 0);
@@ -195,68 +179,65 @@ public class Horario extends JFrame {
         
         
         public void insertarDatos() {
-    try {
+            try {
+            BasicDBObject document = new BasicDBObject()
+        .append("horario_codigo", codigoField.getText())
+        .append("horario_materia", (String) materiaComboBox.getSelectedItem())
+        .append("horario_laboratorios", (String) laboComboBox.getSelectedItem())
+        .append("horario_profesor", nombreField.getText())
+        .append("horario_instrumentos", (String) instrumentosComboBox.getSelectedItem())
+        .append("horario_estado", activoRadioButton.isSelected() ? "Activo" : "Inactivo");
+        horario.insert(document); // Asegúrate de que estás usando la colección "horario"
 
-        String SQL = "INSERT INTO horario(horario_codigo ,horario_materia,horario_laboratorios	,horario_profesor,horario_estado,horario_instrumentos) VALUES(?,?,?,?,?,?)";
-        PreparedStatement pst = (PreparedStatement) con.prepareStatement(SQL);
-
-    
-        pst.setString(1, codigoField.getText());
-        pst.setString(2, (String) materiaComboBox.getSelectedItem());
-        pst.setString(3, (String) laboComboBox.getSelectedItem());// Materia
-        pst.setString(4, nombreField.getText());
-        pst.setString(5, (String) instrumentosComboBox.getSelectedItem());
-        pst.setString(6, activoRadioButton.isSelected() ? "Activo" : "Inactivo"); // Estado
-
-        
-        pst.execute();
-        JOptionPane.showMessageDialog(null, "Registro exitoso");
-    } catch (Exception e) {
-        JOptionPane.showMessageDialog(null, "Error de insercion" + e);
-    }
-}
-        public void mostrarDatos(){
-        //Se crea los titulos de la tabla y el nombre de la base de datos
-        String titulos[]={"Códigos","Materia","Laboratorios","profesor","Estado","Instrumentos"};
-        String registro[]=new String [6];
-        DefaultTableModel modelo=new DefaultTableModel(null, titulos);
-        String SQL = "SELECT * FROM `horario`";
-        //Se agrega los datos de la base de datos al arreglo y luego a la tabla
-        try{
-            Statement st=(Statement) con.createStatement();
-            ResultSet rs=st.executeQuery(SQL);
-            while(rs.next()){
-                registro [0]=rs.getString("horario_codigo");
-                registro [1]=rs.getString("horario_materia");
-                registro [2]=rs.getString("horario_laboratorios");
-                registro [3]=rs.getString("horario_profesor");
-                registro [4]=rs.getString("horario_estado");
-                registro [5]=rs.getString("horario_instrumentos");
-                modelo.addRow(registro);
-            }
-            table.setModel(modelo);
-        }catch(Exception e){
-            JOptionPane.showMessageDialog(null, "Error al mostrar los datos: "+e);
+            JOptionPane.showMessageDialog(null, "Registro exitoso");
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, "Error de inserción: " + e);
         }
+            
+        }
+        public void mostrarDatos(){
+            String titulos[] = {"Código", "Materia", "Laboratorios", "Profesor", "Estado", "Instrumentos"};
+    DefaultTableModel modelo = new DefaultTableModel(null, titulos);
+
+    try {
+        DBCursor cursor = horario.find();
+        while (cursor.hasNext()) {
+            DBObject obj = cursor.next();
+            String registro[] = {
+                obj.get("horario_codigo").toString(),
+                obj.get("horario_materia") != null ? obj.get("horario_materia").toString() : "",
+                obj.get("horario_laboratorios") != null ? obj.get("horario_laboratorios").toString() : "",
+                obj.get("horario_profesor") != null ? obj.get("horario_profesor").toString() : "",
+                obj.get("horario_estado") != null ? obj.get("horario_estado").toString() : "",
+                obj.get("horario_instrumentos") != null ? obj.get("horario_instrumentos").toString() : ""
+            };
+            modelo.addRow(registro);
+        }
+        table.setModel(modelo);
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(null, "Error al mostrar los datos: " + e);
     }
+        }
+       
+    
         
         public void eliminarDatos(){
         
-        int filaSeleccionada=table.getSelectedRow();
-        try {
-            String SQL="delete from horario where horario_codigo="+table.getValueAt(filaSeleccionada, 0);
-            Statement st=(Statement) con.createStatement();
-            int n=st.executeUpdate(SQL);
-            if(n>=0){
+        int filaSeleccionada = table.getSelectedRow();
+        if (filaSeleccionada >= 0) {
+            try {
+                String codigo = table.getValueAt(filaSeleccionada, 0).toString();
+                BasicDBObject query = new BasicDBObject("horario_codigo", codigo);
+                horario.remove(query);
                 JOptionPane.showMessageDialog(null, "Registro Eliminado correctamente");
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(null, "Error en eliminar registro" + e.getMessage());
             }
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(null,"Error en eliminar registro"+e.getMessage());
         }
     }
        
          private void editarDatos() {
-        if (selectedIndex >= 0) {
+             if (selectedIndex >= 0) {
             tableModel.setValueAt(codigoField.getText(), selectedIndex, 0);
             tableModel.setValueAt(materiaComboBox.getSelectedItem(), selectedIndex, 1);
             tableModel.setValueAt(laboComboBox.getSelectedItem(), selectedIndex, 2);
@@ -264,21 +245,19 @@ public class Horario extends JFrame {
             tableModel.setValueAt(instrumentosComboBox.getSelectedItem(), selectedIndex, 4);
             tableModel.setValueAt(activoRadioButton.isSelected() ? "Activo" : "Inactivo", selectedIndex, 5);
 
-            // Update the data in the database
             try {
-                String SQL = "UPDATE horario SET horario_codigo=?, horario_materia=?, horario_laboratorios=?, horario_profesor=?, horario_instrumentos=?, horario_estado=? WHERE horario_codigo=?";
-                PreparedStatement pst = (PreparedStatement) con.prepareStatement(SQL);
+                BasicDBObject query = new BasicDBObject("horario_codigo", codigoField.getText());
+                BasicDBObject updatedData = new BasicDBObject()
+                        .append("$set", new BasicDBObject()
+                                .append("horario_materia", (String) materiaComboBox.getSelectedItem())
+                                .append("horario_laboratorios", (String) laboComboBox.getSelectedItem())
+                                .append("horario_profesor", nombreField.getText())
+                                .append("horario_instrumentos", (String) instrumentosComboBox.getSelectedItem())
+                                .append("horario_estado", activoRadioButton.isSelected() ? "Activo" : "Inactivo")
+                        );
 
-                // Setting parameters for updating
-                pst.setString(1, codigoField.getText());
-                pst.setString(2, (String) materiaComboBox.getSelectedItem());
-                pst.setString(3, (String) laboComboBox.getSelectedItem());
-                pst.setString(4, nombreField.getText());
-                pst.setString(5, (String) instrumentosComboBox.getSelectedItem());
-                pst.setString(6, activoRadioButton.isSelected() ? "Activo" : "Inactivo");
-                pst.setString(7, codigoField.getText()); // Use the same ID for updating
+                horario.update(query, updatedData);
 
-                pst.executeUpdate();
                 JOptionPane.showMessageDialog(null, "Registro actualizado correctamente");
             } catch (Exception e) {
                 JOptionPane.showMessageDialog(null, "Error al actualizar registro" + e);
@@ -287,15 +266,14 @@ public class Horario extends JFrame {
             selectedIndex = -1;
             table.clearSelection();
             codigoField.setText("");
-            nombreField.setText("");
             materiaComboBox.setSelectedIndex(0);
             laboComboBox.setSelectedIndex(0);
+            nombreField.setText("");
             instrumentosComboBox.setSelectedIndex(0);
             activoRadioButton.setSelected(true);
         }
     }
-         
-        private void generatePDF() throws FileNotFoundException {
+         private void generatePDF() throws FileNotFoundException {
     Document document = new Document();
     try {
         PdfWriter.getInstance(document, new FileOutputStream("Horario.pdf"));
@@ -325,9 +303,7 @@ public class Horario extends JFrame {
         JOptionPane.showMessageDialog(null, "Error generating PDF: " + e.getMessage());
     }
 }
-}
-
-
+         }
 
 
         
@@ -386,5 +362,3 @@ public class Horario extends JFrame {
                 activoRadioButton.setSelected(true);
             }
         }*/
-
-

@@ -2,14 +2,12 @@
 package vista;
 
 import Control.Conexion;
-import com.mysql.jdbc.Connection;
-import com.mysql.jdbc.PreparedStatement;
-import com.mysql.jdbc.Statement;
+import com.mongodb.BasicDBObject;
+import com.mongodb.DBCollection;
+import com.mongodb.DBCursor;
+import com.mongodb.DBObject;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.sql.ResultSet;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -22,11 +20,9 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.text.Document;
+import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
-import com.itextpdf.text.Element;
 import com.itextpdf.text.Paragraph;
-import com.itextpdf.text.Phrase;
 import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
@@ -35,21 +31,22 @@ import java.io.FileOutputStream;
 
 
 
+
 public class Profesor extends JFrame {
     
-    //Se instancia objetos para conectarse
-    Conexion cc=new Conexion();
-    Connection con=cc.conexion();
     
      private JTextField codigoField, cedulaField, apellidoField, nombreField, celularField, direccionField;
         private JComboBox<String> materiaComboBox;
         private JRadioButton activoRadioButton, inactivoRadioButton;
         private JButton guardarButton,editarButton,eliminarButton;
-        private DefaultTableModel tableModel;
+    private DefaultTableModel tableModel;
          private JTable table;  
         private int selectedIndex = -1;
+        private DBCollection tabla1; 
 
         public Profesor() {
+        Conexion cc = new Conexion();
+        tabla1 = cc.conexionProfesor();
         
         setSize(800, 800);    
         setTitle("Profesor");
@@ -158,6 +155,21 @@ public class Profesor extends JFrame {
                 tableRowClicked();
             }
         });
+        
+        JButton imprimirPDFButton = new JButton("Imprimir PDF");
+            imprimirPDFButton.setBounds(400, 490, 340, 30);
+            imprimirPDFButton.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    try {
+                        generatePDF();
+                    } catch (FileNotFoundException ex) {
+                        ex.printStackTrace();
+                    }
+                }
+            });
+            add(imprimirPDFButton);
+        
         JScrollPane scrollPane = new JScrollPane(table);
         scrollPane.setBounds(70, 600, 650, 150);
         add(scrollPane);
@@ -181,105 +193,116 @@ public class Profesor extends JFrame {
         
         private void insertarDatos() {
         try {
-            String SQL = "INSERT INTO profesor(profe_codigo, profe_apellido, profe_nombre, profe_celular, profe_titulo, profe_estado) VALUES(?, ?, ?, ?, ?, ?)";
-            PreparedStatement pst = (PreparedStatement) con.prepareStatement(SQL);
+        String codigo = codigoField.getText();
+        String apellido = apellidoField.getText();
+        String nombre = nombreField.getText();
+        String celular = celularField.getText();
+        String titulo = (String) materiaComboBox.getSelectedItem();
+        String estado = activoRadioButton.isSelected() ? "Activo" : "Inactivo";
 
-            pst.setString(1, codigoField.getText());
-            pst.setString(2, apellidoField.getText());
-            pst.setString(3, nombreField.getText());
-            pst.setString(4, celularField.getText());
-            pst.setString(5, (String) materiaComboBox.getSelectedItem());
-            pst.setString(6, activoRadioButton.isSelected() ? "Activo" : "Inactivo");
+        BasicDBObject document = new BasicDBObject();
+        document.put("profe_codigo", codigo);
+        document.put("profe_apellido", apellido);
+        document.put("profe_nombre", nombre);
+        document.put("profe_celular", celular);
+        document.put("profe_titulo", titulo);
+        document.put("profe_estado", estado);
 
-            pst.execute();
-            JOptionPane.showMessageDialog(null, "Registro exitoso");
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "Error de inserción: " + e);
-        }
+        tabla1.insert(document);
+
+        JOptionPane.showMessageDialog(null, "Registro exitoso");
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(null, "Error de inserción: " + e);
+    }
     }
 
     private void mostrarDatos() {
-        //Se crea los titulos de la tabla y el nombre de la base de datos
-        String titulos[] = {"Código", "Apellido", "Nombre", "Celular", "Titulo", "Estado"};
-        String registro[] = new String[6];
-        DefaultTableModel modelo = new DefaultTableModel(null, titulos);
-        String SQL = "SELECT * FROM `profesor`";
-        try {
-            Statement st = (Statement) con.createStatement();
-            ResultSet rs = st.executeQuery(SQL);
-            while (rs.next()) {
-                registro[0] = rs.getString("profe_codigo");
-                registro[1] = rs.getString("profe_apellido");
-                registro[2] = rs.getString("profe_nombre");
-                registro[3] = rs.getString("profe_celular");
-                registro[4] = rs.getString("profe_titulo");
-                registro[5] = rs.getString("profe_estado");
-                modelo.addRow(registro);
-            }
-            table.setModel(modelo);
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "Error al mostrar los datos: " + e);
+        // Se crea los títulos de la tabla y el nombre de la base de datos
+    String titulos[] = {"Código", "Apellido", "Nombre", "Celular", "Titulo", "Estado"};
+    DefaultTableModel modelo = new DefaultTableModel(null, titulos);
+
+    // Consulta MongoDB para obtener los datos
+    try {
+        DBCursor cursor = tabla1.find();
+        while (cursor.hasNext()) {
+            DBObject obj = cursor.next();
+            String registro[] = {
+                getStringValue(obj, "profe_codigo"),
+                getStringValue(obj, "profe_apellido"),
+                getStringValue(obj, "profe_nombre"),
+                getStringValue(obj, "profe_celular"),
+                getStringValue(obj, "profe_titulo"),
+                getStringValue(obj, "profe_estado")
+            };
+            modelo.addRow(registro);
         }
+        table.setModel(modelo);
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(null, "Error al mostrar los datos: " + e);
+    }
+}
+
+private String getStringValue(DBObject obj, String key) {
+    Object value = obj.get(key);
+    return value != null ? value.toString() : "";
+
     }
 
     private void eliminarDatos() {
         
         
-        int filaSeleccionada=table.getSelectedRow();
+         int filaSeleccionada = table.getSelectedRow();
+    if (filaSeleccionada >= 0) {
         try {
-            String SQL="delete from profesor where profe_codigo="+table.getValueAt(filaSeleccionada, 0);
-            Statement st=(Statement) con.createStatement();
-            int n=st.executeUpdate(SQL);
-            if(n>=0){
-                JOptionPane.showMessageDialog(null, "Registro Eliminado correctamente");
-            }
+            String codigo = table.getValueAt(filaSeleccionada, 0).toString();
+            BasicDBObject query = new BasicDBObject("profe_codigo", codigo);
+            tabla1.remove(query);
+            JOptionPane.showMessageDialog(null, "Registro Eliminado correctamente");
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(null,"Error en eliminar registro"+e.getMessage());
+            JOptionPane.showMessageDialog(null, "Error en eliminar registro" + e.getMessage());
         }
+    }
     }
 
     private void editarDatos() {
          if (selectedIndex >= 0) {
-            table.setValueAt(codigoField.getText(), selectedIndex, 0);
-            table.setValueAt(apellidoField.getText(), selectedIndex, 1);
-            table.setValueAt(nombreField.getText(), selectedIndex, 2);
-            table.setValueAt(celularField.getText(), selectedIndex, 3);
-            table.setValueAt(materiaComboBox.getSelectedItem(), selectedIndex, 4);
-            table.setValueAt(activoRadioButton.isSelected() ? "Activo" : "Inactivo", selectedIndex, 5);
+        String codigo = codigoField.getText();
+        String apellido = apellidoField.getText();
+        String nombre = nombreField.getText();
+        String celular = celularField.getText();
+        String titulo = (String) materiaComboBox.getSelectedItem();
+        String estado = activoRadioButton.isSelected() ? "Activo" : "Inactivo";
 
-            try {
-                String SQL = "UPDATE profesor SET profe_codigo=?, profe_apellido=?, profe_nombre=?, profe_celular=?, profe_titulo=?, profe_estado=? WHERE profe_codigo=?";
-                PreparedStatement pst = (PreparedStatement) con.prepareStatement(SQL);
+        BasicDBObject query = new BasicDBObject("profe_codigo", codigo);
+        BasicDBObject updatedData = new BasicDBObject()
+            .append("$set", new BasicDBObject()
+                .append("profe_apellido", apellido)
+                .append("profe_nombre", nombre)
+                .append("profe_celular", celular)
+                .append("profe_titulo", titulo)
+                .append("profe_estado", estado)
+            );
 
-                pst.setString(1, codigoField.getText());
-                pst.setString(2, apellidoField.getText());
-                pst.setString(3, nombreField.getText());
-                pst.setString(4, celularField.getText());
-                pst.setString(5, (String) materiaComboBox.getSelectedItem());
-                pst.setString(6, activoRadioButton.isSelected() ? "Activo" : "Inactivo");
-                pst.setString(7, codigoField.getText());
+        tabla1.update(query, updatedData);
 
-                pst.executeUpdate();
-                JOptionPane.showMessageDialog(null, "Registro actualizado correctamente");
-            } catch (Exception e) {
-                JOptionPane.showMessageDialog(null, "Error al actualizar registro: " + e);
-            }
+        JOptionPane.showMessageDialog(null, "Registro actualizado correctamente");
 
-            selectedIndex = -1;
-            table.clearSelection();
-            codigoField.setText("");
-            apellidoField.setText("");
-            nombreField.setText("");
-            celularField.setText("");
-            materiaComboBox.setSelectedIndex(0);
-            activoRadioButton.setSelected(true);
-        }
+        selectedIndex = -1;
+        table.clearSelection();
+        codigoField.setText("");
+        apellidoField.setText("");
+        nombreField.setText("");
+        celularField.setText("");
+        materiaComboBox.setSelectedIndex(0);
+        activoRadioButton.setSelected(true);
+    }
+             
     }
     
     private void generatePDF() throws FileNotFoundException {
-    com.itextpdf.text.Document document = new com.itextpdf.text.Document();
+    Document document = new Document();
     try {
-        PdfWriter.getInstance(document, new FileOutputStream("Profe.pdf"));
+        PdfWriter.getInstance(document, new FileOutputStream("professors.pdf"));
         document.open();
 
         PdfPTable pdfTable = new PdfPTable(table.getColumnCount());
@@ -306,6 +329,8 @@ public class Profesor extends JFrame {
         JOptionPane.showMessageDialog(null, "Error generating PDF: " + e.getMessage());
     }
 }
+    
+
 
 
         /*private void guardarDatos() {
